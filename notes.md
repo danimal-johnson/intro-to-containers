@@ -101,3 +101,40 @@ Layers allow the container to be built from where it left off. Each step in the 
 This works much like a `.gitignore` file works. It leaves out files and directories you don't want copied into the image.
 
 `.git/` and `node_modules/` are good things to add to the file.
+
+## Making Tiny Containers
+Node alpine is a tiny, minimalist distribution of Linux with node installed. It's about 80MB instead of 1GB. To switch our example from a full debian installation, just change the first line from `FROM node:12-stretch` to `FROM node:12-alpine`. Easy peasy.
+
+Building directly from Alpine (5MB):
+`docker inspect alpine:3.10` gives more information about the image. Pipe it through `jq` to colorize the output.
+
+### To build our image directly from Alpine (about 50MB):
+* Replace `FROM node:12-alpine` with `FROM alpine:3.10`.
+* Node must be installed manually. Add `RUN apk add --update nodejs npm` (apk is the package manager).
+* The `node` user and group must be added with `RUN addgroup -S node && adduser -S node -G node`
+
+### Multi-stage builds are a thing.
+* [The repository](https://btholt.github.io/complete-intro-to-containers/multi-stage-builds)
+* This allows you to include things in development, but remove for production.
+* Each stage seems to start with the next `FROM` command.
+* To copy from the previous build, use the from flag. Ex: `COPY --from=0 --chown=node:node /build .` where 0 is the first stage.
+* If you label your stages with `FROM node:12-stretch AS build`), you can copy with `--from=build`
+* Multiple Docker files are possible, but rare. You can build from an alternative file using `docker build -t -f alt.Dockerfile .`
+
+### Static Assets project
+This section builds a React TypeScript app, hosted by Nginx in a Docker Alpine container.
+[The instructions](https://btholt.github.io/complete-intro-to-containers/static-assets-project)
+
+* start with `npx --ignore-existing create-react-app static-assets-project --template typescript --use-npm`. I created the directory first and used this: `create-react-app . --template typescript --use-npm` Apparently, the default is yarn if you don't specify npm.
+* Add `npm i node-sass`. Rename the `.css` files to `.scss`. Edit `App.tsx` and `index.tsx` accordingly.
+* Run `npm run start` to make sure it works. Then run `npm run build` to make the optimized version.
+* Create a .dockerignore file! (I forgot this and had to wait a half hour for an extra 1.5GB to be wasted.)
+* Create the Dockerfile. Start `FROM node:latest`. Set `WORKDIR /app`. `COPY . .` (remember that this checks the `.dockerignore` file). Finally, `RUN npm ci && npm run build` to recreate the optimized build under `/app`.
+* Let's add the next "layer" in the tiny Nginx Alpine container: `FROM nginx:alpine`, `COPY --from=0 /app/build /usr/share/nginx/html`
+* Nginx defines CMD automatically, so it doesn't need to be overridden. It runs on port 80, by default, so change it at the command prompt if necessary.
+
+Run it:
+* `docker build -t static-app .`
+* `docker run -p 8080:80 static-app` to run it on port 8080 in the foreground.
+* `docker run -d -p 8080:80 static-app` to run it detached in the background.
+
