@@ -138,3 +138,30 @@ Run it:
 * `docker run -p 8080:80 static-app` to run it on port 8080 in the foreground.
 * `docker run -d -p 8080:80 static-app` to run it detached in the background.
 
+## Docker Features
+### Bind Mounts
+[Project](https://btholt.github.io/complete-intro-to-containers/bind-mounts)
+
+* Avoiding snowflakes and cattle.
+* Need to keep core data in a database.
+* Bind mounts are like portals to a computer.
+* Volume mounts = internally managed.
+
+Bind mount example:
+`docker run --mount type=bind,source="$(pwd)"/build,target=/usr/share/nginx/html -p 8080:80 nginx:1.17`
+* No additional Dockerfile involved.
+* Running nginx, serving the external directory `./build` from inside the container.
+
+Volume mount example:
+[Project](https://btholt.github.io/complete-intro-to-containers/volumes)
+* Creating a persistent volume inside of the Docker image.
+* Running an index.js file in Node to update a file each time the container is run.
+* `docker build --tag=incrementor .`
+* `docker run incrementor` won't use the volume. A new, temporary file will always be created.
+* `docker run --env DATA_PATH=/data/num.txt --mount type=volume,src=incrementor-data,target=/data incrementor`
+
+If you have data that's really meant for the container and not for the OS, always prefer volume mounts over bind mounts.
+
+
+### Containers & Dev Environment
+### 
