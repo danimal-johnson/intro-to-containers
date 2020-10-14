@@ -177,3 +177,19 @@ Windows containers are actually full, virtualized Windows images.
 * `git clone https://github.com/btholt/hugo-example.git`
 * `docker run --rm -it --mount type=bind,source="$(pwd)",target=/src -p 1313:1313 -u hugo jguyomard/hugo-builder:0.55 hugo server -w --bind=0.0.0.0`
 * That line runs the hugo server on localhost, exposed on port 1313. It binds the hosted /src directory to the current dir (pwd). The Docker image is `jguyomard/hugo-builder:0.55`. No Dockerile is used.
+
+### Dev Containers in VS Code
+[Project files](https://btholt.github.io/complete-intro-to-containers/visual-studio-code)
+
+Note: Under Windows with WSL, you need to reopen folder in Windows first, and then reopen again in container. (Otherwise it won't work.)
+
+* Create a directory called .devcontainer
+* A Dockerfile can be added to list dependencies:
+* - `FROM node:12-stretch`
+* - `RUN npm install --global eslint prettier`
+* A `devcontainer.json` file contains all the details
+* - Name, Dockerfile location, app port, run arguments, etc.
+
+Evil prank (a horrible Windows 3.1 theme): 
+* Under `settings`, add `"wlrkbench.colorTheme": "Hot Dog Stand",`
+* Under `extensions` add `"somekittens.hot-dog-stand,"
