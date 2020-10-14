@@ -161,7 +161,19 @@ Volume mount example:
 * `docker run --env DATA_PATH=/data/num.txt --mount type=volume,src=incrementor-data,target=/data incrementor`
 
 If you have data that's really meant for the container and not for the OS, always prefer volume mounts over bind mounts.
+Bind mounts are really meant for those times when you want interaction between the container and the host. (e.g. logs and databases)
+Multiple containers can share the same mounts.
+
+Windows containers are actually full, virtualized Windows images.
 
 
-### Containers & Dev Environment
-### 
+### Using Containers for your Dev Environment
+
+[The project](https://btholt.github.io/complete-intro-to-containers/dev-containers)
+
+* Hugo is a static site generator for the Go language.
+* We don't have to know Go to get up and running with it.
+* We can use a container called hugo-builder
+* `git clone https://github.com/btholt/hugo-example.git`
+* `docker run --rm -it --mount type=bind,source="$(pwd)",target=/src -p 1313:1313 -u hugo jguyomard/hugo-builder:0.55 hugo server -w --bind=0.0.0.0`
+* That line runs the hugo server on localhost, exposed on port 1313. It binds the hosted /src directory to the current dir (pwd). The Docker image is `jguyomard/hugo-builder:0.55`. No Dockerile is used.
