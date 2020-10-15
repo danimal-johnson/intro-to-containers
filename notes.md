@@ -193,3 +193,19 @@ Note: Under Windows with WSL, you need to reopen folder in Windows first, and th
 Evil prank (a horrible Windows 3.1 theme): 
 * Under `settings`, add `"wlrkbench.colorTheme": "Hot Dog Stand",`
 * Under `extensions` add `"somekittens.hot-dog-stand,"
+
+### Networking in Docker: MongoDB container
+[Project files](https://btholt.github.io/complete-intro-to-containers/networking)
+
+* Use `docker network ls` for status. `bridge` is the default.
+* `docker network create --driver=bridge app-net` (App-net is just our name for the new network.)
+* `docker run -d --network=app-net -p 27017:27017 --name=db --rm mongo:3`
+* (Run a detached instance of a MongoDB container using the app-net network on the default port 27017)
+
+Now we'll use one container to talk to the other container:
+* `docker run -it --network=app-net --rm mongo:3 mongo --host db`
+* (Interactive, TTY, image=mongo v.3, run "mongo". The Docker host "db" was defined above.)
+* Mongo command: `show dbs` lists databases.
+* `docker ps` will list both running containers. `docker top db` will show the top processes in the `db` container.
+
+That was just an example. Now let's create a node.js container to access our MongoDB database.
